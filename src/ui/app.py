@@ -16,6 +16,7 @@ from src.ui.components.device_table import DeviceTable
 from src.ui.components.header_bar import HeaderBar
 from src.ui.components.log_console import LogConsole
 from src.ui.components.status_bar import StatusBar
+from src.ui.components.manual_modal import ManualModal
 from src.ui.theme import COLORS, SPACING
 from src.utils.logger import AppLogger
 
@@ -73,13 +74,14 @@ class RedLocalBlockApp(ctk.CTk):
         self._inicializar_nodos_base()
 
     def _construir_layout(self):
-        # 1. Barra de cabecera
+        # 1. Barra de cabecera con botón de Manual
         self.header = HeaderBar(
             self,
             ip_local=self.info_red.ip_local,
             mac_local=self.info_red.mac_local,
             ip_gateway=self.info_red.ip_gateway,
             iface_nombre=self.info_red.nombre_interfaz,
+            on_abrir_manual=self._abrir_manual_usuario,
         )
         self.header.pack(fill="x", padx=SPACING["md"], pady=(SPACING["md"], SPACING["xs"]))
 
@@ -100,6 +102,7 @@ class RedLocalBlockApp(ctk.CTk):
             on_aislar=self._aislar_seleccionado,
             on_restaurar=self._restaurar_seleccionado,
             on_restaurar_todo=self._restaurar_toda_la_red,
+            on_ayuda=lambda: self._abrir_manual_usuario(seccion_inicial=1),
         )
         self.control_panel.pack(side="right", fill="y", padx=(SPACING["xs"], 0))
 
@@ -209,3 +212,7 @@ class RedLocalBlockApp(ctk.CTk):
         """Garantiza la reconciliación total de la red antes de cerrar la aplicación."""
         self.isolation_service.restaurar_todo()
         self.destroy()
+
+    def _abrir_manual_usuario(self, seccion_inicial: int = 0):
+        """Abre la ventana modal desplegable con el manual de usuario (Patrón 08-popups)."""
+        ManualModal(self, seccion_inicial=seccion_inicial)

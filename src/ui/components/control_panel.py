@@ -19,6 +19,7 @@ class ControlPanel(ctk.CTkFrame):
         on_aislar: Optional[Callable[[], None]] = None,
         on_restaurar: Optional[Callable[[], None]] = None,
         on_restaurar_todo: Optional[Callable[[], None]] = None,
+        on_ayuda: Optional[Callable[[], None]] = None,
         **kwargs,
     ):
         super().__init__(
@@ -34,18 +35,39 @@ class ControlPanel(ctk.CTkFrame):
         self.on_aislar = on_aislar
         self.on_restaurar = on_restaurar
         self.on_restaurar_todo = on_restaurar_todo
+        self.on_ayuda = on_ayuda
 
         self._crear_widgets()
 
     def _crear_widgets(self):
-        # Título de panel
+        # Título de panel con HelpCircle (Patrón Agency-Satoshi de 08-popups)
+        top_row = ctk.CTkFrame(self, fg_color="transparent")
+        top_row.pack(fill="x", padx=SPACING["md"], pady=(SPACING["md"], SPACING["sm"]))
+
         lbl_titulo = ctk.CTkLabel(
-            self,
+            top_row,
             text="Panel de Control",
             font=(FONTS["family_sans"], FONTS["sizes"]["base"], "bold"),
             text_color=COLORS["text"],
         )
-        lbl_titulo.pack(anchor="w", padx=SPACING["md"], pady=(SPACING["md"], SPACING["sm"]))
+        lbl_titulo.pack(side="left")
+
+        if self.on_ayuda:
+            btn_help = ctk.CTkButton(
+                top_row,
+                text="?",
+                width=24,
+                height=24,
+                font=(FONTS["family_sans"], FONTS["sizes"]["xs"], "bold"),
+                fg_color=COLORS["bg"],
+                hover_color=COLORS["surface_hover"],
+                text_color=COLORS["text_muted"],
+                border_width=1,
+                border_color=COLORS["border"],
+                corner_radius=RADII["pill"],
+                command=self.on_ayuda,
+            )
+            btn_help.pack(side="right")
 
         # Tarjeta de dispositivo seleccionado
         self.card_info = ctk.CTkFrame(
