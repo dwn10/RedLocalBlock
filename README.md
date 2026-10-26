@@ -33,7 +33,10 @@ Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean
 ## 📋 Requisitos del Sistema
 
 * **Python 3.11+**
-* **Windows:** Requiere [Npcap](https://npcap.com/) (marcar la casilla *"Install Npcap in WinPcap API-compatible Mode"* durante la instalación) y privilegios de Administrador.
+* **Windows:**
+  * Requiere el controlador **[Npcap 1.90 installer](https://npcap.com/dist/npcap-1.90.exe)** para manipulación de paquetes en Capa 2.
+  * *Importante durante la instalación:* Asegurarse de marcar la casilla **`Install Npcap in WinPcap API-compatible Mode`**.
+  * Requiere privilegios de Administrador (el script solicitará elevación automática UAC al iniciar).
 * **Linux:** Requiere privilegios de superusuario (`sudo`).
 
 ---
