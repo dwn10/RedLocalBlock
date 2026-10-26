@@ -1,2 +1,3 @@
-scapy
-uuid
+scapy==2.5.0
+customtkinter==5.2.2
+pillow==10.4.0

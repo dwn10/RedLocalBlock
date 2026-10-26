@@ -1,0 +1,61 @@
+# ==========================================
+# RedLocalBlock - Blinded .gitignore
+# Arquitectura Segura & Clean-Room Standard
+# ==========================================
+
+# Entornos virtuales de Python
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Bytecode y caches de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Secretos y variables de entorno (Aislamiento Total)
+.env
+.env.*
+!.env.example
+
+# Llaves privadas, certificados y credenciales
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+credentials.json
+service-account*.json
+token*.json
+
+# Archivos de auditoría interna y temporales
+audit_ledger.md
+*.log
+scratch/
+
+# IDEs y Editores de Código
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Archivos .md
+resumen.md
+TODO.md

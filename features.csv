@@ -1,0 +1,15 @@
+feature,area,priority,original,clone,notes
+Detección automática multiplataforma de interfaz y Gateway,network,must,yes,todo,Reemplaza la llamada frágil a 'ip route' de Linux por Scapy nativo (Windows/Linux)
+Verificación de privilegios de Administrador/Root y Npcap,security,must,no,todo,Requerido para manipulación de sockets raw en capa 2
+Aislamiento controlado de dispositivo mediante paquetes ARP,core loop,must,yes,todo,Envío de respuestas ARP (op=2) hacia víctima y puerta de enlace
+Restauración forzada de tablas ARP al presionar detener,core loop,must,no,todo,Corrige el bug crítico del original que dejaba a la víctima sin red tras detener
+Restauración automática al cerrar la ventana (WM_DELETE_WINDOW),safety,must,no,todo,Evita persistencia del aislamiento ante cierre inesperado o salida normal
+Ejecución asíncrona segura con comunicación thread-safe,architecture,must,no,todo,Desacopla el bucle de red de los widgets UI usando colas de mensajes
+Escaneo automático de la subred local (/24) por ARP,discovery,should,no,todo,Innovación respecto al original que exigía introducir la IP a mano
+Tabla interactiva de dispositivos descubiertos,ui,should,no,todo,Columnas de IP MAC Fabricante OUI y Estado de conexión
+Interfaz gráfica moderna con soporte Modo Oscuro/Claro (CustomTkinter),ui,should,no,todo,Sustituye la apariencia básica de Tkinter de los años 90
+Resolución de Hostname y fabricante OUI de la tarjeta de red,discovery,could,no,todo,Enriquece la identificación visual de los equipos en la red
+Lista blanca de protección anti-bloqueo (Router y Host local),safety,could,no,todo,Impide el aislamiento accidental de la puerta de enlace o del propio equipo
+Consola de eventos y auditoría en tiempo real con marcas de tiempo,reporting,should,yes,todo,Reemplaza el texto crudo sin formato del original por logs estructurados
+Exportación de reporte de auditoría a CSV/JSON,reporting,could,no,todo,Permite guardar inventario de equipos para auditorías de seguridad
+Captura e inspección de tráfico de terceros (MitM Sniffing),network,could,no,skip,Fuera del alcance ético y defensivo de administración local

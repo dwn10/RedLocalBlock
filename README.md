@@ -1,26 +1,114 @@
-La herramienta que hemos desarrollado combina Scapy, una poderosa librería de Python para la manipulación de paquetes, con Tkinter, una biblioteca para la creación de interfaces gráficas. Esta combinación nos permite crear una aplicación intuitiva que facilita la gestión y análisis de la red.
+# RedLocalBlock 🛡️
 
-![imagen](https://github.com/user-attachments/assets/afe2073d-8518-4fff-ad74-95beac013fb6)
+**Herramienta moderna de auditoría, descubrimiento y control de acceso local en Capa 2 (ARP).**  
+Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean-Room.
 
-Funcionamiento:
+---
 
-Interfaz Gráfica Intuitiva:
-     La aplicación cuenta con una interfaz amigable donde los usuarios pueden interactuar fácilmente con las funcionalidades de Scapy. A través de botones y cuadros de texto, se pueden ingresar parámetros y ejecutar acciones sin necesidad de tener conocimientos avanzados de programación.
+## 🚀 Características Principales
 
-Envío de Paquetes ARP:
-     Utilizando Scapy, la herramienta permite enviar paquetes ARP (Address Resolution Protocol) a dispositivos en la red. Esto es fundamental para detectar dispositivos conectados y verificar su estado. Al enviar estos paquetes, podemos recopilar información sobre la dirección IP y la dirección MAC de cada dispositivo en nuestra red local.
+* **Interfaz Gráfica Moderna (CustomTkinter):**
+  * Estética Dark Mode (Cyberpunk / Terminal moderna) con alto contraste accesible (WCAG 2.1 AA/AAA).
+  * Selector dinámico de Modo Claro / Modo Oscuro.
+  * Escalado automático para pantallas HiDPI y 4K.
+* **Descubrimiento Activo de Red (/24):**
+  * Barrido asíncrono de la subred local mediante consultas ARP sin congelar la ventana.
+  * Resolución local de fabricantes por prefijo MAC (OUI de Apple, Samsung, Intel, TP-Link, Espressif, etc.).
+* **Aislamiento Controlado en Capa 2:**
+  * Desasociación selectiva de dispositivos no autorizados mediante forjado ARP (`op=2`).
+  * Protección anti-autoaislamiento: el Gateway y la máquina del operador están blindados contra bloqueos accidentales.
+* **Reconciliación y Restauración Garantizada:**
+  * Reestablecimiento inmediato de las tablas ARP al presionar "Restaurar".
+  * Invocación de emergencia en hooks del sistema (`atexit`) y al cerrar la ventana (`WM_DELETE_WINDOW`).
+* **Multiplataforma Real (Windows / Linux):**
+  * Detección nativa de puerta de enlace predeterminada e IP local sin depender de comandos bash específicos.
+  * Verificación preventiva de elevación UAC en Windows y root en Linux.
+* **Privacidad y Seguridad por Diseño (DSGVO / TDDDG):**
+  * Operación 100% *Local-First* sin telemetría ni envío de datos a servidores externos.
+  * Fuentes del sistema locales sin peticiones a CDNs.
+  * Cero inspección de contenidos de paquetes (No MITM de contraseñas ni tráfico HTTP/HTTPS).
 
-Detección de Intrusos:
-    La herramienta analiza las respuestas de los paquetes ARP para identificar dispositivos que no deberían estar conectados a la red. Esto ayuda a detectar posibles intrusos o dispositivos no autorizados que podrían comprometer la seguridad de la red.
+---
 
-Expulsión de Intrusos:
-    En caso de detectar un dispositivo no autorizado, la herramienta permite enviar paquetes ARP maliciosos para "expulsar" a esos intrusos de la red. Esta técnica, aunque debe usarse con responsabilidad y en entornos controlados, es efectiva para mantener la seguridad de la red local.
+## 📋 Requisitos del Sistema
 
-Visualización de Resultados:
-    La interfaz gráfica muestra información en tiempo real sobre los dispositivos detectados, así como alertas si se identifica un intruso. Esto permite a los usuarios tener un control más efectivo sobre su red y actuar rápidamente ante cualquier amenaza.
+* **Python 3.11+**
+* **Windows:** Requiere [Npcap](https://npcap.com/) (marcar la casilla *"Install Npcap in WinPcap API-compatible Mode"* durante la instalación) y privilegios de Administrador.
+* **Linux:** Requiere privilegios de superusuario (`sudo`).
 
-Consideraciones:
+---
 
-Es importante recordar que el uso de herramientas de análisis de red debe realizarse de manera ética y responsable. Esta aplicación es una demostración educativa y debe utilizarse únicamente en entornos donde tengas permiso para realizar pruebas de seguridad.
+## 🛠️ Instalación
 
+1. **Clonar o descargar el repositorio:**
+   ```bash
+   git clone https://github.com/dwn10/RedLocalBlock.git
+   cd RedLocalBlock
+   ```
 
+2. **Crear y activar un entorno virtual (recomendado):**
+   ```bash
+   python -m venv venv
+   # En Windows:
+   .\venv\Scripts\activate
+   # En Linux:
+   source venv/bin/activate
+   ```
+
+3. **Instalar dependencias oficiales:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## 💻 Uso
+
+### En Windows:
+Ejecuta la consola como **Administrador** (o permite el diálogo de UAC automático):
+```bash
+python -m src.main
+```
+
+### En Linux:
+Ejecuta con privilegios de superusuario:
+```bash
+sudo python -m src.main
+```
+
+---
+
+## 🧪 Ejecución de Pruebas Unitarias
+
+Para validar la integridad de los modelos, el motor de red y la resolución OUI:
+```bash
+python -m unittest discover tests
+```
+
+---
+
+## 📂 Estructura del Proyecto
+
+```
+RedLocalBlock/
+├── src/
+│   ├── main.py                     # Entry point y elevación UAC/root
+│   ├── core/                       # Motor Scapy, detector de red y permisos
+│   ├── models/                     # Entidades y máquina de estados del dispositivo
+│   ├── services/                   # Escaneo /24, aislamiento y OUI lookup
+│   ├── ui/                         # CustomTkinter GUI, tema y componentes
+│   └── utils/                      # Logger thread-safe con cola asíncrona
+├── tests/                          # Batería de pruebas unitarias
+├── Branding.md                     # Guía de diseño visual y accesibilidad WCAG
+├── Project.md                      # Plano arquitectónico del sistema
+├── features.csv                    # Matriz de paridad de funcionalidades
+├── tokens.json                     # Tokens de diseño semánticos
+└── requirements.txt                # Dependencias fijadas para producción
+```
+
+---
+
+## ⚖️ Licencia y Uso Ético
+
+Distribuido bajo la **Licencia MIT**.  
+Esta herramienta fue diseñada con fines **educativos, defensivos y de administración de redes locales**. Su uso está estrictamente restringido a entornos autorizados y de propiedad del usuario.
