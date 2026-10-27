@@ -3,7 +3,12 @@
 **Herramienta moderna de auditoría, descubrimiento y control de acceso local en Capa 2 (ARP).**  
 Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean-Room.
 
+<p align="center">
+  <a href="./Project.md"><img src="https://img.shields.io/badge/Visitar-Arquitectura-blue?style=for-the-badge"></a>
+</p>
+
 ---
+
 
 ## 🚀 Características Principales
 
@@ -147,3 +152,15 @@ RedLocalBlock/
 
 Distribuido bajo la **Licencia MIT**.  
 Esta herramienta fue diseñada con fines **educativos, defensivos y de administración de redes locales**. Su uso está estrictamente restringido a entornos autorizados y de propiedad del usuario.
+
+<br>
+<p align="center">
+  <a href="./Project.md"><img src="https://img.shields.io/badge/Visitar-Arquitectura-blue?style=for-the-badge"></a>
+</p>
+
+---
+<br>
+<p align="center">
+  <small>All rights reserved © 2026 | <a href="https://github.com/dwn10">Darwin Paz</a></small>
+</p>
+
