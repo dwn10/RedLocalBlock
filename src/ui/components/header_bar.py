@@ -62,7 +62,7 @@ class HeaderBar(ctk.CTkFrame):
         # Pill IP Local
         self._crear_pill(pills_frame, "IP Local", ip_local, COLORS["accent"])
         # Pill Interfaz
-        self._crear_pill(pills_frame, "Interfaz", iface_nombre, COLORS["surface_hover"])
+        self._crear_pill(pills_frame, "Interfaz", iface_nombre, COLORS["border_input"])
 
         # Botón HelpCircle / Manual desplegable (08-popups)
         if self.on_abrir_manual:
@@ -72,12 +72,14 @@ class HeaderBar(ctk.CTkFrame):
                 font=(FONTS["family_sans"], FONTS["sizes"]["xs"], "bold"),
                 fg_color=COLORS["accent"],
                 hover_color=COLORS["accent_hover"],
+                text_color=COLORS["on_accent"],
                 corner_radius=RADII["sm"],
                 width=85,
                 height=26,
                 command=self.on_abrir_manual,
             )
             btn_manual.pack(side="left", padx=(SPACING["sm"], 0), pady=2)
+
 
     def _crear_pill(self, master, etiqueta: str, valor: str, color_borde: str):
         pill = ctk.CTkFrame(

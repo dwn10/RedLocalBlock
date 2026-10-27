@@ -44,12 +44,14 @@ class LogConsole(ctk.CTkFrame):
             font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
             fg_color=COLORS["bg"],
             hover_color=COLORS["surface_hover"],
+            text_color=COLORS["text"],
             border_width=1,
             border_color=COLORS["border"],
             corner_radius=RADII["sm"],
             command=self.limpiar_consola,
         )
         btn_limpiar.pack(side="right")
+
 
         # Área de texto tipo consola
         self.textbox = ctk.CTkTextbox(

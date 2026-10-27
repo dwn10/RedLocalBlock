@@ -71,24 +71,52 @@ class OUIService:
         "00:18:4D": "Realtek", "00:E0:4C": "Realtek", "52:54:00": "QEMU/Realtek Virtual",
         "E4:46:B0": "Realtek GbE",
 
-        # Google / Amazon
+        # Google / Amazon / Roku
         "3C:5A:37": "Google Nest", "54:60:09": "Google", "F4:F5:DB": "Google",
         "44:65:0D": "Amazon Echo", "68:54:FD": "Amazon Fire", "AC:63:BE": "Amazon",
+        "00:0D:4B": "Roku", "20:EF:BD": "Roku", "84:EA:99": "Roku", "AC:AE:19": "Roku",
+
+        # Routers & Pasarelas (ARRIS, Sagemcom, ZTE, AVM, Netgear, D-Link)
+        "EC:A9:40": "ARRIS / CommScope", "00:1D:CE": "ARRIS", "00:15:A2": "ARRIS",
+        "00:1A:2B": "Sagemcom", "74:9D:79": "Sagemcom", "84:A1:D1": "ZTE Corporation",
+        "00:04:0E": "AVM FRITZ!Box", "24:65:11": "AVM FRITZ!Box", "34:81:C4": "AVM FRITZ!Box",
+        "00:09:5B": "Netgear", "00:14:6C": "Netgear", "84:1B:5E": "Netgear",
+        "00:05:5D": "D-Link", "00:13:46": "D-Link", "14:D6:4D": "D-Link",
+
+        # Consolas (Nintendo, Sony, Xbox)
+        "70:48:F7": "Nintendo", "98:B6:E9": "Nintendo", "00:09:BF": "Nintendo",
+        "00:1F:32": "Nintendo", "00:24:44": "Nintendo", "34:AF:2C": "Nintendo",
+        "7C:BB:8A": "Nintendo", "94:58:CB": "Nintendo", "B8:78:26": "Nintendo",
+        "00:04:1F": "Sony PlayStation", "00:13:15": "Sony PlayStation", "00:19:C1": "Sony PlayStation",
+        "70:9E:29": "Sony", "A8:E3:EE": "Sony", "F8:46:1C": "Sony PlayStation",
+        "58:82:A8": "Microsoft Xbox", "98:5F:D3": "Microsoft Xbox",
+
+        # Computadoras y Laptops (Dell, HP, Lenovo, ASUS)
+        "00:14:22": "Dell", "14:FE:B5": "Dell", "24:B6:FD": "Dell", "74:86:7A": "Dell",
+        "00:08:02": "HP", "00:11:0A": "HP", "10:60:4B": "HP", "3C:D9:2B": "HP",
+        "00:59:07": "Lenovo", "10:7B:44": "Lenovo", "54:EE:75": "Lenovo", "AC:38:70": "Lenovo",
+        "00:11:2F": "ASUS", "00:1E:8C": "ASUS", "10:BF:48": "ASUS", "60:A4:4C": "ASUS",
+
+        # Televisores y Hogar Inteligente (LG, Tuya IoT)
+        "00:1F:6B": "LG Electronics", "10:F9:6F": "LG Electronics", "A8:23:FE": "LG Electronics",
+        "10:2C:6B": "Tuya Smart IoT", "50:8A:06": "Tuya Smart IoT", "A0:92:08": "Tuya Smart IoT",
     }
 
     @classmethod
     def obtener_fabricante(cls, mac: str) -> str:
         """
         Deduce el fabricante a partir de los primeros 3 octetos de la MAC.
-        Retorna 'Desconocido' si no se encuentra en el diccionario.
+        Retorna cadena vacía si no se encuentra en el diccionario para permitir
+        formato de nombre amigable por omisión.
         """
         if not mac:
-            return "Desconocido"
+            return ""
 
         # Limpiar y normalizar formato XX:XX:XX
         mac_limpia = re.sub(r"[^0-9A-Fa-f]", "", mac).upper()
         if len(mac_limpia) >= 6:
             prefijo = f"{mac_limpia[0:2]}:{mac_limpia[2:4]}:{mac_limpia[4:6]}"
-            return cls._OUI_DATABASE.get(prefijo, "Genérico / Desconocido")
+            return cls._OUI_DATABASE.get(prefijo, "")
 
-        return "Desconocido"
+        return ""
+

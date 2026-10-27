@@ -28,12 +28,20 @@ class TestOUIService(unittest.TestCase):
         # Espressif IoT
         self.assertEqual(OUIService.obtener_fabricante("24:0A:C4:00:11:22"), "Espressif IoT")
 
+        # Nintendo
+        self.assertEqual(OUIService.obtener_fabricante("70:48:F7:01:DB:F2"), "Nintendo")
+
+        # ARRIS
+        self.assertEqual(OUIService.obtener_fabricante("EC:A9:40:7F:4B:22"), "ARRIS / CommScope")
+
     def test_fabricante_desconocido(self):
-        self.assertEqual(OUIService.obtener_fabricante("00:00:00:11:22:33"), "Genérico / Desconocido")
+        # Desconocido retorna cadena vacía para formateo limpio sin textos genéricos
+        self.assertEqual(OUIService.obtener_fabricante("00:00:00:11:22:33"), "")
 
     def test_mac_vacia_o_invalida(self):
-        self.assertEqual(OUIService.obtener_fabricante(""), "Desconocido")
-        self.assertEqual(OUIService.obtener_fabricante("12"), "Desconocido")
+        self.assertEqual(OUIService.obtener_fabricante(""), "")
+        self.assertEqual(OUIService.obtener_fabricante("12"), "")
+
 
 
 if __name__ == "__main__":

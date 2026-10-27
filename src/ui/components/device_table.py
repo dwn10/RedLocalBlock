@@ -54,10 +54,13 @@ class DeviceTable(ctk.CTkFrame):
             font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
             fg_color=COLORS["bg"],
             border_color=COLORS["border_input"],
+            text_color=COLORS["text"],
+            placeholder_text_color=COLORS["text_muted"],
             corner_radius=RADII["sm"],
         )
         self.entry_busqueda.pack(side="right")
         self.entry_busqueda.bind("<KeyRelease>", lambda e: self._aplicar_filtro())
+
 
         # Cabecera de columnas
         header_frame = ctk.CTkFrame(self, fg_color=COLORS["bg"], height=32, corner_radius=RADII["sm"])
@@ -65,9 +68,9 @@ class DeviceTable(ctk.CTkFrame):
 
         col_configs = [
             ("IP", 0.22),
-            ("Dirección MAC", 0.28),
-            ("Fabricante (OUI)", 0.28),
-            ("Estado", 0.22),
+            ("Dirección MAC", 0.26),
+            ("Nombre del Dispositivo", 0.32),
+            ("Estado", 0.20),
         ]
         for texto, peso in col_configs:
             lbl = ctk.CTkLabel(
@@ -126,6 +129,7 @@ class DeviceTable(ctk.CTkFrame):
                 coincide = (
                     termino in d.ip.lower()
                     or termino in d.mac.lower()
+                    or termino in d.nombre_amigable.lower()
                     or termino in d.vendor.lower()
                 )
                 if not coincide:
@@ -173,16 +177,16 @@ class DeviceTable(ctk.CTkFrame):
         lbl_mac.pack(side="left", expand=True, fill="x", padx=SPACING["sm"])
         lbl_mac.bind("<Button-1>", lambda e, disp=d: self._seleccionar(disp))
 
-        # Columna 3: Fabricante OUI
-        lbl_vendor = ctk.CTkLabel(
+        # Columna 3: Nombre del Dispositivo
+        lbl_nombre = ctk.CTkLabel(
             fila,
-            text=d.vendor,
-            font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
+            text=d.nombre_amigable,
+            font=(FONTS["family_sans"], FONTS["sizes"]["xs"], "bold"),
             text_color=COLORS["text"],
             anchor="w",
         )
-        lbl_vendor.pack(side="left", expand=True, fill="x", padx=SPACING["sm"])
-        lbl_vendor.bind("<Button-1>", lambda e, disp=d: self._seleccionar(disp))
+        lbl_nombre.pack(side="left", expand=True, fill="x", padx=SPACING["sm"])
+        lbl_nombre.bind("<Button-1>", lambda e, disp=d: self._seleccionar(disp))
 
         # Columna 4: Badge de Estado
         badge_frame = ctk.CTkFrame(fila, fg_color="transparent")

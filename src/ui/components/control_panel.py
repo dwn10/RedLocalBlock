@@ -20,6 +20,7 @@ class ControlPanel(ctk.CTkFrame):
         on_restaurar: Optional[Callable[[], None]] = None,
         on_restaurar_todo: Optional[Callable[[], None]] = None,
         on_ayuda: Optional[Callable[[], None]] = None,
+        on_renombrar: Optional[Callable[[], None]] = None,
         **kwargs,
     ):
         super().__init__(
@@ -36,6 +37,7 @@ class ControlPanel(ctk.CTkFrame):
         self.on_restaurar = on_restaurar
         self.on_restaurar_todo = on_restaurar_todo
         self.on_ayuda = on_ayuda
+        self.on_renombrar = on_renombrar
 
         self._crear_widgets()
 
@@ -134,6 +136,7 @@ class ControlPanel(ctk.CTkFrame):
             font=(FONTS["family_sans"], FONTS["sizes"]["sm"], "bold"),
             fg_color=COLORS["surface_hover"],
             hover_color=COLORS["border"],
+            text_color=COLORS["text"],
             border_width=1,
             border_color=COLORS["border_input"],
             corner_radius=RADII["md"],
@@ -150,13 +153,32 @@ class ControlPanel(ctk.CTkFrame):
             font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
             fg_color=COLORS["bg"],
             hover_color=COLORS["surface_hover"],
+            text_color=COLORS["text"],
             border_width=1,
             border_color=COLORS["border"],
             corner_radius=RADII["md"],
             height=32,
             command=self._accion_restaurar_todo,
         )
-        self.btn_restaurar_todo.pack(fill="x", padx=SPACING["md"], pady=(SPACING["sm"], SPACING["md"]))
+        self.btn_restaurar_todo.pack(fill="x", padx=SPACING["md"], pady=(SPACING["xs"], SPACING["xs"]))
+
+        # Botón Renombrar Dispositivo
+        self.btn_renombrar = ctk.CTkButton(
+            self,
+            text="✏️ Renombrar Dispositivo",
+            font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
+            fg_color="transparent",
+            hover_color=COLORS["surface_hover"],
+            text_color=COLORS["text"],
+            border_width=1,
+            border_color=COLORS["border"],
+            corner_radius=RADII["md"],
+            height=28,
+            state="disabled",
+            command=self._accion_renombrar,
+        )
+        self.btn_renombrar.pack(fill="x", padx=SPACING["md"], pady=(0, SPACING["md"]))
+
 
     def actualizar_seleccion(self, d: Optional[DispositivoRed]):
         """Habilita o deshabilita botones según el dispositivo seleccionado y su estado."""
@@ -168,10 +190,12 @@ class ControlPanel(ctk.CTkFrame):
             self.lbl_target_details.configure(text="Haz clic en una fila de la tabla")
             self.btn_aislar.configure(state="disabled")
             self.btn_restaurar.configure(state="disabled")
+            self.btn_renombrar.configure(state="disabled")
             return
 
-        self.lbl_target_ip.configure(text=f"{d.ip}", text_color=COLORS["text"])
-        self.lbl_target_details.configure(text=f"{d.mac} | {d.vendor}")
+        self.lbl_target_ip.configure(text=f"{d.nombre_amigable}", text_color=COLORS["text"])
+        self.lbl_target_details.configure(text=f"IP: {d.ip} | MAC: {d.mac}")
+        self.btn_renombrar.configure(state="normal")
 
         if not d.es_bloqueable:
             self.btn_aislar.configure(state="disabled")
@@ -204,3 +228,7 @@ class ControlPanel(ctk.CTkFrame):
     def _accion_restaurar_todo(self):
         if self.on_restaurar_todo:
             self.on_restaurar_todo()
+
+    def _accion_renombrar(self):
+        if self.on_renombrar:
+            self.on_renombrar()

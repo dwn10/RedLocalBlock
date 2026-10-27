@@ -94,11 +94,13 @@ class ManualModal(ctk.CTkToplevel):
 
     SECCIONES: List[Tuple[str, str]] = [
         (
-            "1. Descubrimiento de Red (Escaneo de Subred /24)",
-            "• ¿Cómo funciona? Al pulsar 'Escanear Red', el motor de Scapy envía consultas broadcast ARP a todos los nodos de la subred local (ej. 192.168.0.1 a 192.168.0.254) sin bloquear la interfaz.\n"
-            "• Datos descubiertos: La tabla muestra la dirección IP, MAC física y el fabricante deducido localmente mediante la base OUI (Apple, Samsung, Intel, TP-Link, Espressif, etc.).\n"
-            "• Filtro en vivo: Usa la barra de búsqueda superior para filtrar instantáneamente por IP o marca de equipo."
+            "1. Descubrimiento y Nombres de Dispositivos (Subred /24)",
+            "• ¿Cómo funciona? Al pulsar 'Escanear Red', el motor envía consultas broadcast ARP a todos los nodos de la subred local (ej. 192.168.0.1 a 192.168.0.254) sin bloquear la interfaz.\n"
+            "• Identificación Inteligente: En lugar de textos confusos como 'Genérico / Desconocido', la tabla muestra el Nombre del Dispositivo (ej. 'Router (ARRIS / CommScope)', 'Consola Nintendo', 'Dispositivo Apple', 'DESKTOP-MFGBNR9 (Este Equipo)').\n"
+            "• Nombres Personalizados: Selecciona cualquier fila y pulsa '✏️ Renombrar Dispositivo' para asignarle el apodo que quieras (ej. 'Switch del Salón', 'Móvil Papá'). Se almacena localmente y persiste entre reinicios.\n"
+            "• Filtro en vivo: Usa la barra de búsqueda superior para filtrar instantáneamente por IP, MAC o nombre de equipo."
         ),
+
         (
             "2. Control de Acceso y Aislamiento en Capa 2 (ARP Spoofing)",
             "• Mecanismo técnico: La aplicación forja paquetes ARP de respuesta (op=2) dirigidos a la víctima y al router cada 2 segundos.\n"
@@ -216,6 +218,7 @@ class ManualModal(ctk.CTkToplevel):
             font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
             fg_color=COLORS["surface"],
             hover_color=COLORS["surface_hover"],
+            text_color=COLORS["text"],
             border_width=1,
             border_color=COLORS["border"],
             corner_radius=RADII["sm"],
@@ -231,12 +234,14 @@ class ManualModal(ctk.CTkToplevel):
             font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
             fg_color=COLORS["surface"],
             hover_color=COLORS["surface_hover"],
+            text_color=COLORS["text"],
             border_width=1,
             border_color=COLORS["border"],
             corner_radius=RADII["sm"],
             command=self.colapsar_todos,
         )
         btn_colapsar_todos.pack(side="left")
+
 
         # 2. Contenedor desplazable con las secciones desplegables
         scroll_frame = ctk.CTkScrollableFrame(
@@ -270,11 +275,13 @@ class ManualModal(ctk.CTkToplevel):
             font=(FONTS["family_sans"], FONTS["sizes"]["sm"], "bold"),
             fg_color=COLORS["accent"],
             hover_color=COLORS["accent_hover"],
+            text_color=COLORS["on_accent"],
             corner_radius=RADII["md"],
             height=36,
             command=self.destroy,
         )
         btn_entendido.pack(side="right")
+
 
     def expandir_todos(self):
         for sec in self._acordeones:

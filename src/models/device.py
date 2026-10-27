@@ -37,11 +37,74 @@ class DispositivoRed:
     mac: str
     vendor: str = "Desconocido"
     hostname: str = ""
+    alias: str = ""
     es_gateway: bool = False
     es_local: bool = False
     estado: EstadoDispositivo = EstadoDispositivo.NORMAL
     primer_visto: datetime = field(default_factory=datetime.now)
     ultimo_visto: datetime = field(default_factory=datetime.now)
+
+    @property
+    def nombre_amigable(self) -> str:
+        """Retorna el nombre más descriptivo y amigable para el usuario."""
+        if self.alias:
+            return self.alias
+        if self.hostname:
+            return self.hostname
+        if self.es_gateway:
+            if self.vendor and self.vendor not in ("Desconocido", "Genérico / Desconocido", ""):
+                return f"Router ({self.vendor})"
+            return "Router Principal (Gateway)"
+        if self.es_local:
+            import socket
+            try:
+                host = socket.gethostname()
+                return f"{host} (Este Equipo)"
+            except Exception:
+                return "Este Equipo (PC Local)"
+        if self.vendor and self.vendor not in ("Desconocido", "Genérico / Desconocido", ""):
+            v_low = self.vendor.lower()
+            if "nintendo" in v_low:
+                return "Consola Nintendo"
+            if "playstation" in v_low or "sony" in v_low:
+                return "Consola / Equipo Sony"
+            if "xbox" in v_low:
+                return "Consola Xbox"
+            if "apple" in v_low:
+                return "Dispositivo Apple"
+            if "samsung" in v_low:
+                return "Dispositivo Samsung"
+            if "xiaomi" in v_low or "redmi" in v_low:
+                return "Dispositivo Xiaomi"
+            if "huawei" in v_low:
+                return "Dispositivo Huawei"
+            if "lg" in v_low:
+                return "Dispositivo LG"
+            if "amazon" in v_low or "echo" in v_low or "fire" in v_low:
+                return "Dispositivo Amazon"
+            if "google" in v_low or "nest" in v_low:
+                return "Dispositivo Google"
+            if "tp-link" in v_low:
+                return "Dispositivo TP-Link"
+            if "espressif" in v_low or "tuya" in v_low or "iot" in v_low:
+                return "Dispositivo IoT / Domótica"
+            if "realtek" in v_low:
+                return "Equipo de Red Realtek"
+            if "intel" in v_low:
+                return "Equipo Intel"
+            if "microsoft" in v_low:
+                return "Equipo Microsoft"
+            if "dell" in v_low:
+                return "Equipo Dell"
+            if "hp" in v_low:
+                return "Equipo HP"
+            if "lenovo" in v_low:
+                return "Equipo Lenovo"
+            if "asus" in v_low:
+                return "Equipo ASUS"
+            return f"Dispositivo {self.vendor}"
+        octeto = self.ip.split(".")[-1] if "." in self.ip else self.ip
+        return f"Dispositivo Red (.{octeto})"
 
     def __post_init__(self) -> None:
         # Validación rigurosa de formato IPv4

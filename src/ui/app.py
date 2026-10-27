@@ -9,7 +9,9 @@ import customtkinter as ctk
 
 from src.core.system_detector import InfoRedLocal, SystemDetector
 from src.models.device import DispositivoRed, EstadoDispositivo
+from src.services.alias_service import AliasService
 from src.services.isolation_service import IsolationService
+from src.services.oui_service import OUIService
 from src.services.scan_service import ScanService
 from src.ui.components.control_panel import ControlPanel
 from src.ui.components.device_table import DeviceTable
@@ -17,8 +19,11 @@ from src.ui.components.header_bar import HeaderBar
 from src.ui.components.log_console import LogConsole
 from src.ui.components.status_bar import StatusBar
 from src.ui.components.manual_modal import ManualModal
+from src.ui.components.footer import AppFooter
 from src.ui.theme import COLORS, SPACING
 from src.utils.logger import AppLogger
+
+
 
 
 class RedLocalBlockApp(ctk.CTk):
@@ -32,9 +37,10 @@ class RedLocalBlockApp(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         self.title("RedLocalBlock - Auditoría y Control de Red Local")
-        self.geometry("1020x700")
-        self.minsize(880, 580)
+        self.geometry("1020x720")
+        self.minsize(880, 600)
         self.configure(fg_color=COLORS["bg"])
+
 
         # Detectar red si no fue inyectada
         self.info_red = info_red or SystemDetector.detectar_red()
@@ -103,6 +109,7 @@ class RedLocalBlockApp(ctk.CTk):
             on_restaurar=self._restaurar_seleccionado,
             on_restaurar_todo=self._restaurar_toda_la_red,
             on_ayuda=lambda: self._abrir_manual_usuario(seccion_inicial=1),
+            on_renombrar=self._renombrar_dispositivo_seleccionado,
         )
         self.control_panel.pack(side="right", fill="y", padx=(SPACING["xs"], 0))
 
@@ -111,22 +118,35 @@ class RedLocalBlockApp(ctk.CTk):
         self.console.pack(fill="x", padx=SPACING["md"], pady=SPACING["xs"])
 
         # 4. Barra de estado inferior
-        self.status_bar = StatusBar(self)
-        self.status_bar.pack(fill="x", padx=SPACING["md"], pady=(SPACING["xs"], SPACING["sm"]))
+        self.status_bar = StatusBar(self, on_cambiar_tema=self._al_cambiar_tema)
+        self.status_bar.pack(fill="x", padx=SPACING["md"], pady=(SPACING["xs"], 2))
+
+        # 5. Pie de página estándar (02d-el-footer)
+        self.footer = AppFooter(self)
+        self.footer.pack(fill="x", padx=SPACING["md"], pady=(0, SPACING["xs"]))
+
+
 
     def _inicializar_nodos_base(self):
-        """Agrega el Router y el host local a la tabla al inicio."""
+        """Agrega el Router y el host local a la tabla al inicio con nombres amigables."""
+        gw_alias = AliasService.obtener_alias(self.info_red.mac_gateway) or ""
+        gw_vendor = OUIService.obtener_fabricante(self.info_red.mac_gateway)
         disp_gw = DispositivoRed(
             ip=self.info_red.ip_gateway,
             mac=self.info_red.mac_gateway,
-            vendor="Gateway de Red",
+            vendor=gw_vendor,
+            alias=gw_alias,
             es_gateway=True,
             es_local=False,
         )
+
+        loc_alias = AliasService.obtener_alias(self.info_red.mac_local) or ""
+        loc_vendor = OUIService.obtener_fabricante(self.info_red.mac_local)
         disp_local = DispositivoRed(
             ip=self.info_red.ip_local,
             mac=self.info_red.mac_local,
-            vendor="Host Administrador",
+            vendor=loc_vendor,
+            alias=loc_alias,
             es_gateway=False,
             es_local=True,
         )
@@ -134,6 +154,29 @@ class RedLocalBlockApp(ctk.CTk):
         self._dispositivos[disp_local.ip] = disp_local
         self.table.actualizar_dispositivos(list(self._dispositivos.values()))
         self._actualizar_metricas()
+
+    def _renombrar_dispositivo_seleccionado(self):
+        """Permite al usuario asignar un nombre personalizado/alias al dispositivo."""
+        d = self.table.obtener_seleccionado()
+        if not d:
+            return
+
+        dialog = ctk.CTkInputDialog(
+            text=f"Introduce el nombre o apodo para este equipo ({d.ip}):",
+            title="Renombrar Dispositivo"
+        )
+        nuevo_nombre = dialog.get_input()
+        if nuevo_nombre is not None:
+            nuevo_limpio = nuevo_nombre.strip()
+            d.alias = nuevo_limpio
+            AliasService.guardar_alias(d.mac, nuevo_limpio)
+            self.table.actualizar_dispositivos(list(self._dispositivos.values()))
+            self.control_panel.actualizar_seleccion(d)
+            if nuevo_limpio:
+                self.logger.info(f"Dispositivo {d.ip} ({d.mac}) nombrado como '{nuevo_limpio}'.", d.ip)
+            else:
+                self.logger.info(f"Nombre de {d.ip} restablecido a '{d.nombre_amigable}'.", d.ip)
+
 
     def _iniciar_escaneo(self):
         """Dispara el escaneo concurrente de la subred."""
@@ -216,3 +259,9 @@ class RedLocalBlockApp(ctk.CTk):
     def _abrir_manual_usuario(self, seccion_inicial: int = 0):
         """Abre la ventana modal desplegable con el manual de usuario (Patrón 08-popups)."""
         ManualModal(self, seccion_inicial=seccion_inicial)
+
+    def _al_cambiar_tema(self, modo: str):
+        """Notificación de cambio de tema: refresca componentes dinámicos de la interfaz."""
+        self.table.actualizar_dispositivos(list(self._dispositivos.values()))
+        self.logger.info(f"Tema de interfaz cambiado a {modo.upper()}.")
+

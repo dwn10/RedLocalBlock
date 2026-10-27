@@ -85,5 +85,7 @@ class StatusBar(ctk.CTkFrame):
     def _toggle_tema(self):
         modo = "dark" if self.switch_tema.get() == 1 else "light"
         ctk.set_appearance_mode(modo)
+        self.switch_tema.configure(text="Modo Oscuro" if modo == "dark" else "Modo Claro")
         if self.on_cambiar_tema:
             self.on_cambiar_tema(modo)
+

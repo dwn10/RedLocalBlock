@@ -57,5 +57,24 @@ class TestDispositivoRed(unittest.TestCase):
         self.assertEqual(disp.estado, EstadoDispositivo.NORMAL)
 
 
+    def test_nombre_amigable_prioridad_y_formato(self):
+        # 1. Prioridad máxima: alias del usuario
+        disp = DispositivoRed(ip="192.168.1.30", mac="70:48:F7:01:DB:F2", vendor="Nintendo", alias="Mi Switch")
+        self.assertEqual(disp.nombre_amigable, "Mi Switch")
+
+        # 2. Marca Nintendo
+        disp_nintendo = DispositivoRed(ip="192.168.1.30", mac="70:48:F7:01:DB:F2", vendor="Nintendo")
+        self.assertEqual(disp_nintendo.nombre_amigable, "Consola Nintendo")
+
+        # 3. Router con marca
+        disp_gw = DispositivoRed(ip="192.168.1.1", mac="EC:A9:40:7F:4B:22", vendor="ARRIS / CommScope", es_gateway=True)
+        self.assertEqual(disp_gw.nombre_amigable, "Router (ARRIS / CommScope)")
+
+        # 4. Fallback limpio sin 'Genérico / Desconocido'
+        disp_desconocido = DispositivoRed(ip="192.168.1.99", mac="00:00:00:11:22:33", vendor="")
+        self.assertEqual(disp_desconocido.nombre_amigable, "Dispositivo Red (.99)")
+
+
 if __name__ == "__main__":
+
     unittest.main()

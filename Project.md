@@ -70,30 +70,39 @@ RedLocalBlock/
 │   │   ├── __init__.py
 │   │   ├── scan_service.py         # Escaneo concurrente de subred /24 con progreso
 │   │   ├── isolation_service.py    # Ciclo de vida de aislamiento y restauración atómica
-│   │   └── oui_service.py          # Identificador de fabricante a partir de MAC OUI
+│   │   ├── oui_service.py          # Identificador de fabricante a partir de MAC OUI
+│   │   └── alias_service.py        # Persistencia local de nombres y apodos en JSON
 │   │
 │   ├── ui/                         # Interfaz gráfica moderna (CustomTkinter)
 │   │   ├── __init__.py
 │   │   ├── app.py                  # Ventana principal, layout maestro y despachador
-│   │   ├── theme.py                # Paleta de colores, tokens visuales y tipografías
+│   │   ├── theme.py                # Paleta de colores WCAG (Dark/Light mode)
 │   │   └── components/             # Widgets modulares reutilizables
 │   │       ├── __init__.py
 │   │       ├── header_bar.py       # Indicadores de interfaz activa, Gateway e IP local
 │   │       ├── device_table.py     # Tabla interactiva con selección y badges de estado
-│   │       ├── control_panel.py    # Botones Escanear, Aislar, Restaurar Todo
+│   │       ├── control_panel.py    # Botones Escanear, Aislar, Restaurar y Renombrar
 │   │       ├── log_console.py      # Consola de auditoría con marcas de tiempo
-│   │       └── status_bar.py       # Resumen de dispositivos encontrados y estado actual
+│   │       ├── status_bar.py       # Resumen de métricas y selector de tema dinámico
+│   │       ├── manual_modal.py     # Manual de usuario interactivo desplegable (08-popups)
+│   │       └── footer.py           # Pie de página estándar con créditos ECUADOR-IT (02d-el-footer)
 │   │
 │   └── utils/                      # Utilidades transversales
 │       ├── __init__.py
 │       └── logger.py               # Logger thread-safe conectado a Queue de la UI
 │
-└── tests/                          # Batería de pruebas unitarias
-    ├── __init__.py
-    ├── test_permissions.py         # Validación de detección de privilegios
-    ├── test_device_model.py        # Pruebas de máquina de estados del dispositivo
-    └── test_oui_service.py         # Pruebas de resolución de prefijos MAC
+├── tests/                          # Batería de 15 pruebas unitarias
+│   ├── __init__.py
+│   ├── test_permissions.py         # Validación de detección de privilegios
+│   ├── test_device_model.py        # Pruebas de máquina de estados y nombres amigables
+│   ├── test_network_engine.py      # Pruebas de forjado de tramas ARP
+│   ├── test_oui_service.py         # Pruebas de resolución OUI de fabricantes
+│   ├── test_manual_modal.py        # Pruebas de secciones del manual interactivo
+│   └── test_footer.py              # Pruebas del componente AppFooter
+├── device_aliases.json             # Almacenamiento local de alias personalizados
+├── TODO.md                         # Seguimiento ágil de hitos y tareas del proyecto
 ```
+
 
 ---
 

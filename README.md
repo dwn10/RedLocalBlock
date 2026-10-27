@@ -8,18 +8,23 @@ Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean
 ## 🚀 Características Principales
 
 * **Interfaz Gráfica Moderna (CustomTkinter):**
-  * Estética Dark Mode (Cyberpunk / Terminal moderna) con alto contraste accesible (WCAG 2.1 AA/AAA).
-  * Selector dinámico de Modo Claro / Modo Oscuro.
+  * Estética Dark Mode (Cyberpunk / Terminal moderna) y Light Mode con alto contraste accesible (WCAG 2.1 AA/AAA).
+  * Selector dinámico integral de Modo Claro / Modo Oscuro que actualiza todas las tarjetas, tablas y consola.
   * Escalado automático para pantallas HiDPI y 4K.
-* **Descubrimiento Activo de Red (/24):**
+* **Descubrimiento Activo de Red (/24) e Identificación Inteligente:**
   * Barrido asíncrono de la subred local mediante consultas ARP sin congelar la ventana.
-  * Resolución local de fabricantes por prefijo MAC (OUI de Apple, Samsung, Intel, TP-Link, Espressif, etc.).
+  * Resolución local de fabricantes por prefijo MAC (OUI de Apple, Samsung, Intel, TP-Link, Espressif, Nintendo, Sony, ARRIS, etc.).
+  * Nombres amigables para dispositivos y soporte para asignar **apodos personalizados persistentes** ("✏️ Renombrar Dispositivo") almacenados localmente en `device_aliases.json`.
 * **Aislamiento Controlado en Capa 2:**
   * Desasociación selectiva de dispositivos no autorizados mediante forjado ARP (`op=2`).
   * Protección anti-autoaislamiento: el Gateway y la máquina del operador están blindados contra bloqueos accidentales.
 * **Reconciliación y Restauración Garantizada:**
-  * Reestablecimiento inmediato de las tablas ARP al presionar "Restaurar".
+  * Reestablecimiento inmediato de las tablas ARP al presionar "Restaurar" (ráfaga de 5 paquetes legítimos).
   * Invocación de emergencia en hooks del sistema (`atexit`) y al cerrar la ventana (`WM_DELETE_WINDOW`).
+* **Manual de Uso Interactivo Desplegable (08-popups):**
+  * Ventana modal accesible desde el botón `📖 Manual` con acordeones explicativos de cada función del sistema.
+* **Pie de Página Estandarizado (02d-el-footer):**
+  * Footer con Copyright, año dinámico y atribución enlazada a la agencia desarrolladora **[ECUADOR-IT](https://www.ecuador-it.com/)**.
 * **Multiplataforma Real (Windows / Linux):**
   * Detección nativa de puerta de enlace predeterminada e IP local sin depender de comandos bash específicos.
   * Verificación preventiva de elevación UAC en Windows y root en Linux.
@@ -83,7 +88,7 @@ sudo python -m src.main
 
 ## 🧪 Ejecución de Pruebas Unitarias
 
-Para validar la integridad de los modelos, el motor de red y la resolución OUI:
+Para validar la integridad de los modelos, el motor de red, la resolución OUI, el modal y el footer:
 ```bash
 python -m unittest discover tests
 ```
@@ -97,15 +102,42 @@ RedLocalBlock/
 ├── src/
 │   ├── main.py                     # Entry point y elevación UAC/root
 │   ├── core/                       # Motor Scapy, detector de red y permisos
+│   │   ├── network_engine.py       # Creación e inyección de paquetes Scapy (ARP/Ether)
+│   │   ├── system_detector.py      # Detección multiplataforma de Gateway, IP y MAC local
+│   │   └── permissions.py          # Chequeo preventivo de privilegios Administrador/Root
 │   ├── models/                     # Entidades y máquina de estados del dispositivo
-│   ├── services/                   # Escaneo /24, aislamiento y OUI lookup
+│   │   └── device.py               # Modelo DispositivoRed y nombres amigables
+│   ├── services/                   # Servicios de red, alias y resolución OUI
+│   │   ├── scan_service.py         # Escaneo concurrente de subred /24 con progreso
+│   │   ├── isolation_service.py    # Ciclo de vida de aislamiento y restauración atómica
+│   │   ├── oui_service.py          # Identificador de fabricante a partir de MAC OUI
+│   │   └── alias_service.py        # Persistencia local de nombres y apodos en JSON
 │   ├── ui/                         # CustomTkinter GUI, tema y componentes
-│   └── utils/                      # Logger thread-safe con cola asíncrona
-├── tests/                          # Batería de pruebas unitarias
+│   │   ├── app.py                  # Ventana principal, layout maestro y despachador
+│   │   ├── theme.py                # Paleta de colores WCAG (Dark/Light mode)
+│   │   └── components/             # Widgets modulares reutilizables
+│   │       ├── header_bar.py       # Indicadores de interfaz, Gateway, IP y botón Manual
+│   │       ├── device_table.py     # Tabla interactiva con búsqueda en vivo y badges
+│   │       ├── control_panel.py    # Botones Escanear, Aislar, Restaurar y Renombrar
+│   │       ├── log_console.py      # Consola de auditoría con marcas de tiempo
+│   │       ├── status_bar.py       # Métricas de red y selector dinámico de tema
+│   │       ├── manual_modal.py     # Manual de usuario interactivo desplegable (08-popups)
+│   │       └── footer.py           # Pie de página estándar con créditos ECUADOR-IT (02d-el-footer)
+│   └── utils/                      # Utilidades transversales
+│       └── logger.py               # Logger thread-safe conectado a Queue de la UI
+├── tests/                          # Batería de 15 pruebas unitarias
+│   ├── test_device_model.py        # Pruebas de máquina de estados y nombres amigables
+│   ├── test_footer.py              # Pruebas del componente AppFooter
+│   ├── test_manual_modal.py        # Pruebas de secciones del manual desplegable
+│   ├── test_network_engine.py      # Pruebas de forjado de tramas ARP
+│   ├── test_oui_service.py         # Pruebas de resolución OUI de fabricantes
+│   └── test_permissions.py         # Pruebas de detección de permisos del sistema
+├── device_aliases.json             # Almacenamiento local persistente de nombres de dispositivos
 ├── Branding.md                     # Guía de diseño visual y accesibilidad WCAG
 ├── Project.md                      # Plano arquitectónico del sistema
+├── TODO.md                         # Registro y seguimiento de tareas del proyecto
 ├── features.csv                    # Matriz de paridad de funcionalidades
-├── tokens.json                     # Tokens de diseño semánticos
+├── tokens.json                     # Tokens de diseño semánticos validados con contrast.py
 └── requirements.txt                # Dependencias fijadas para producción
 ```
 

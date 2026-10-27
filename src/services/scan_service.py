@@ -9,6 +9,7 @@ from typing import Callable, Dict, List, Optional
 from src.core.network_engine import NetworkEngine
 from src.models.device import DispositivoRed, EstadoDispositivo
 from src.services.oui_service import OUIService
+from src.services.alias_service import AliasService
 from src.utils.logger import AppLogger
 
 
@@ -85,11 +86,13 @@ class ScanService:
                 es_gw = (ip == self.ip_gateway)
                 es_loc = (ip == self.ip_local or mac.upper() == self.mac_local.upper())
                 fabricante = OUIService.obtener_fabricante(mac)
+                alias = AliasService.obtener_alias(mac) or ""
 
                 disp = DispositivoRed(
                     ip=ip,
                     mac=mac,
                     vendor=fabricante,
+                    alias=alias,
                     es_gateway=es_gw,
                     es_local=es_loc,
                     estado=EstadoDispositivo.NORMAL,
