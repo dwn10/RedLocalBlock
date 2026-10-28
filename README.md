@@ -14,6 +14,10 @@ Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean
   <a href="./Project.md"><img src="https://img.shields.io/badge/Visitar-Arquitectura-blue?style=for-the-badge"></a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/redlocalblock_preview.webp" alt="RedLocalBlock - Interfaz Principal" width="800">
+</p>
+
 ---
 
 

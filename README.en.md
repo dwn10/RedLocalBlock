@@ -14,6 +14,10 @@ Built with Python, **CustomTkinter**, and **Scapy** under a Clean-Room software 
   <a href="./Project.md"><img src="https://img.shields.io/badge/Visit-Architecture-blue?style=for-the-badge"></a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/redlocalblock_preview.webp" alt="RedLocalBlock - Main Interface" width="800">
+</p>
+
 ---
 
 ## 🚀 Key Features

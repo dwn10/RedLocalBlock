@@ -14,6 +14,10 @@ Entwickelt in Python mit **CustomTkinter** und **Scapy** unter einer strikten Cl
   <a href="./Project.md"><img src="https://img.shields.io/badge/Architektur-Besuchen-blue?style=for-the-badge"></a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/redlocalblock_preview.webp" alt="RedLocalBlock - Hauptbenutzeroberfläche" width="800">
+</p>
+
 ---
 
 ## 🚀 Hauptmerkmale
