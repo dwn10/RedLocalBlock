@@ -18,7 +18,7 @@ const RedLocalBlock_Project = {
 
 **RedLocalBlock** es una aplicación de escritorio moderna, segura y multiplataforma (Windows/Linux) diseñada para la auditoría, descubrimiento y control de acceso local de dispositivos en capa de enlace (Capa 2 / ARP).
 
-El proyecto surge a partir de la ingeniería inversa del prototipo didáctico `PinguExit` (`REVERSE_ENGINEERING_REPORT.md`), rediseñando su arquitectura desde los cimientos bajo el protocolo **Clean-Room**:
+El proyecto fue diseñando desde los cimientos bajo el protocolo **Clean-Room**:
 * **Desacople total:** Separación estricta entre el motor de red (`NetworkEngine`), la capa de orquestación de servicios y la interfaz gráfica (`CustomTkinter`).
 * **Multiplataforma real:** Eliminación de dependencias de scripts shell de Linux (`ip route`), adoptando mecanismos nativos de introspección de red de Scapy (`conf.route.route("0.0.0.0")`).
 * **Garantía de Resiliencia:** Resolución del bug crítico de desconexión residual implementando rutinas atómicas de reconciliación ARP al detener, al cerrar la ventana (`WM_DELETE_WINDOW`) y en hooks de salida de emergencia (`atexit` / `signal`).
@@ -48,9 +48,6 @@ RedLocalBlock/
 ├── requirements.txt                # Dependencias fijadas para producción
 ├── requirements-dev.txt            # Dependencias para pruebas y empaquetado
 ├── Project.md                      # Fuente de la verdad arquitectónica (Este archivo)
-├── features.csv                    # Matriz de paridad y priorización MoSCoW
-├── REVERSE_ENGINEERING_REPORT.md   # Reporte Clean-Room de ingeniería inversa
-├── resumen.md                      # Análisis inicial consolidado
 │
 ├── src/
 │   ├── __init__.py

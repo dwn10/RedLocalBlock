@@ -4,6 +4,13 @@
 Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean-Room.
 
 <p align="center">
+  <strong>Language:</strong>
+  <a href="README.md">Español</a> |
+  <a href="README.en.md">English</a> |
+  <a href="README.de.md">Deutsch</a>
+</p>
+
+<p align="center">
   <a href="./Project.md"><img src="https://img.shields.io/badge/Visitar-Arquitectura-blue?style=for-the-badge"></a>
 </p>
 
@@ -84,13 +91,14 @@ Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean
 ### En Windows (Tres variantes disponibles):
 
 #### 🚀 Opción 1: Lanzador 1-Clic (`Iniciar.bat` - Recomendado)
-* **Doble clic** sobre [`Iniciar.bat`](file:///c:/Users/Student/Documents/DEV/RedLocalBlock/Iniciar.bat).
+* **Doble clic** sobre [`Iniciar.bat`].
 * **Ventajas:** Inicio instantáneo (<0.5 segundos), utiliza `pythonw.exe` sin molestas ventanas negras de consola y solicita elevación de Administrador (UAC) automáticamente si es necesario.
 
-#### 📦 Opción 2: Compilación a Ejecutable Portable (`.exe`)
+#### 📦 Opción 2: Compilación y Ejecución Portable (`.exe`)
 Si deseas generar un archivo independiente para distribuir o ejecutar sin invocar Python directamente:
-1. Haz doble clic en [`compilar_exe.bat`](file:///c:/Users/Student/Documents/DEV/RedLocalBlock/compilar_exe.bat) (o ejecuta `.\compilar_exe.bat` en la terminal).
-2. Se generará el binario en `dist/RedLocalBlock.exe` con todas las dependencias (`customtkinter`, `scapy`, etc.) empaquetadas en un único archivo.
+1. Haz doble clic en [`compilar_exe.bat`] (o ejecuta `.\compilar_exe.bat` en la terminal).
+2. Se generará el binario en `dist/RedLocalBlock.exe` con todas las dependencias (`customtkinter`, `scapy`, `pystray`, etc.) empaquetadas en un único archivo.
+3. **Ejecutar:** Haz doble clic directamente sobre [`dist/RedLocalBlock.exe`] y acepta el diálogo de permisos UAC de Windows.
 > *Nota:* Cualquier equipo donde se ejecute el `.exe` debe tener instalado el driver de captura **Npcap**.
 
 #### 🛠️ Opción 3: Modo Terminal / Desarrollo
@@ -163,7 +171,6 @@ RedLocalBlock/
 ├── Branding.md                     # Guía de diseño visual y accesibilidad WCAG
 ├── Project.md                      # Plano arquitectónico del sistema
 ├── TODO.md                         # Registro y seguimiento de tareas del proyecto
-├── features.csv                    # Matriz de paridad de funcionalidades
 ├── tokens.json                     # Tokens de diseño semánticos validados con contrast.py
 └── requirements.txt                # Dependencias fijadas para producción
 ```
