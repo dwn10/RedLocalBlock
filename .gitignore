@@ -39,6 +39,7 @@ id_rsa*
 credentials.json
 service-account*.json
 token*.json
+device_aliases.json
 
 # Archivos de auditoría interna y temporales
 audit_ledger.md
