@@ -1,10 +1,11 @@
 """
 Ventana principal de la aplicación RedLocalBlock.
-Ensambla los componentes modulares y gestiona el despacho asíncrono thread-safe.
+Ensambla los componentes modulares y gestiona el despacho asíncrono thread-safe,
+la vigilancia pasiva del Modo Centinela y la bandeja del sistema (System Tray).
 """
 
 import queue
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 import customtkinter as ctk
 
 from src.core.system_detector import InfoRedLocal, SystemDetector
@@ -13,6 +14,7 @@ from src.services.alias_service import AliasService
 from src.services.isolation_service import IsolationService
 from src.services.oui_service import OUIService
 from src.services.scan_service import ScanService
+from src.services.sentinel_service import SentinelService
 from src.ui.components.control_panel import ControlPanel
 from src.ui.components.device_table import DeviceTable
 from src.ui.components.header_bar import HeaderBar
@@ -20,10 +22,9 @@ from src.ui.components.log_console import LogConsole
 from src.ui.components.status_bar import StatusBar
 from src.ui.components.manual_modal import ManualModal
 from src.ui.components.footer import AppFooter
+from src.ui.components.tray_manager import TrayManager
 from src.ui.theme import COLORS, SPACING
 from src.utils.logger import AppLogger
-
-
 
 
 class RedLocalBlockApp(ctk.CTk):
@@ -41,6 +42,7 @@ class RedLocalBlockApp(ctk.CTk):
         self.minsize(880, 600)
         self.configure(fg_color=COLORS["bg"])
 
+        self._notificado_bandeja = False
 
         # Detectar red si no fue inyectada
         self.info_red = info_red or SystemDetector.detectar_red()
@@ -65,12 +67,34 @@ class RedLocalBlockApp(ctk.CTk):
             logger=self.logger,
         )
 
+        # Servicio Centinela (Escucha Pasiva en Capa 2)
+        self.sentinel_service = SentinelService(
+            ip_gateway=self.info_red.ip_gateway,
+            mac_gateway=self.info_red.mac_gateway,
+            ip_local=self.info_red.ip_local,
+            mac_local=self.info_red.mac_local,
+            iface=self.info_red.nombre_interfaz,
+            logger=self.logger,
+            on_nuevo_dispositivo=self._al_detectar_nuevo_dispositivo,
+            on_dispositivo_visto=self._al_ver_dispositivo_conocido,
+        )
+
+        # Gestor de Bandeja del Sistema (System Tray)
+        self.tray_manager = TrayManager(
+            on_mostrar=self.restaurar_ventana,
+            on_toggle_centinela=self._toggle_centinela,
+            on_escanear=lambda: self.after(0, self._iniciar_escaneo),
+            on_restaurar_todo=lambda: self.after(0, self._restaurar_toda_la_red),
+            on_salir=self._al_salir_definitivo,
+            centinela_activo_inicial=True,
+        )
+
         self._dispositivos: Dict[str, DispositivoRed] = {}
 
         # Construcción visual
         self._construir_layout()
 
-        # Interceptar cierre de ventana para reconciliación obligatoria
+        # Interceptar cierre de ventana para minimizar a bandeja manteniendo centinela activo
         self.protocol("WM_DELETE_WINDOW", self._al_cerrar_ventana)
 
         # Iniciar bucle de despacho de logs thread-safe
@@ -110,6 +134,7 @@ class RedLocalBlockApp(ctk.CTk):
             on_restaurar_todo=self._restaurar_toda_la_red,
             on_ayuda=lambda: self._abrir_manual_usuario(seccion_inicial=1),
             on_renombrar=self._renombrar_dispositivo_seleccionado,
+            on_minimizar_tray=self.minimizar_a_bandeja,
         )
         self.control_panel.pack(side="right", fill="y", padx=(SPACING["xs"], 0))
 
@@ -124,8 +149,6 @@ class RedLocalBlockApp(ctk.CTk):
         # 5. Pie de página estándar (02d-el-footer)
         self.footer = AppFooter(self)
         self.footer.pack(fill="x", padx=SPACING["md"], pady=(0, SPACING["xs"]))
-
-
 
     def _inicializar_nodos_base(self):
         """Agrega el Router y el host local a la tabla al inicio con nombres amigables."""
@@ -155,6 +178,85 @@ class RedLocalBlockApp(ctk.CTk):
         self.table.actualizar_dispositivos(list(self._dispositivos.values()))
         self._actualizar_metricas()
 
+        # Registrar nodos conocidos en el monitor Centinela
+        self.sentinel_service.registrar_mac_conocida(disp_gw.mac)
+        self.sentinel_service.registrar_mac_conocida(disp_local.mac)
+        self.sentinel_service.agregar_macs_conocidas(AliasService.obtener_todos_alias().keys())
+
+        # Iniciar icono en bandeja y vigilancia en segundo plano
+        self.tray_manager.iniciar()
+        self.sentinel_service.iniciar()
+
+    def restaurar_ventana(self, seleccionar_ip: Optional[str] = None):
+        """Restaura la ventana principal desde la bandeja y la trae al frente."""
+        def _restaurar():
+            self.deiconify()
+            self.lift()
+            self.focus_force()
+            if seleccionar_ip:
+                self.table.seleccionar_dispositivo(seleccionar_ip)
+        self.after(0, _restaurar)
+
+    def minimizar_a_bandeja(self):
+        """Oculta la ventana y mantiene el centinela vigilando en segundo plano."""
+        self.withdraw()
+        if not self._notificado_bandeja:
+            self._notificado_bandeja = True
+            self.tray_manager.notificar(
+                titulo="🛡️ RedLocalBlock: Centinela en Segundo Plano",
+                mensaje="La aplicación sigue vigilando la red de forma silenciosa.\nHaz doble clic en el icono para abrir."
+            )
+
+    def _al_cerrar_ventana(self):
+        """Al pulsar la 'X' de la ventana, minimiza a la bandeja del sistema."""
+        self.minimizar_a_bandeja()
+
+    def _al_salir_definitivo(self):
+        """Cierre definitivo: reconciliación total ARP y liberación de recursos."""
+        def _terminar():
+            self.logger.info("Cerrando RedLocalBlock: Reconciliando tablas de red y deteniendo Centinela...")
+            self.isolation_service.restaurar_todo()
+            self.sentinel_service.detener()
+            self.tray_manager.detener()
+            self.destroy()
+        self.after(0, _terminar)
+
+    def _toggle_centinela(self, activo: bool):
+        """Pausa o activa el hilo Centinela desde el menú del tray o la interfaz."""
+        if activo:
+            self.sentinel_service.iniciar()
+            self.status_bar.set_estado_centinela(True)
+        else:
+            self.sentinel_service.detener()
+            self.status_bar.set_estado_centinela(False)
+
+    def _al_detectar_nuevo_dispositivo(self, d: DispositivoRed):
+        """Callback ejecutado cuando el Centinela detecta una MAC no registrada."""
+        def _actualizar_ui():
+            self._dispositivos[d.ip] = d
+            self.table.agregar_o_actualizar_dispositivo(d)
+            self._actualizar_metricas()
+            self.status_bar.set_estado(f"Nuevo equipo: {d.nombre_amigable}", COLORS["warning"])
+
+            nombre_detallado = d.nombre_amigable
+            if d.vendor and d.vendor not in ("Desconocido", ""):
+                nombre_detallado += f" ({d.vendor})"
+
+            self.tray_manager.notificar(
+                titulo="🛡️ RedLocalBlock: Nuevo Dispositivo en la Red",
+                mensaje=f"IP: {d.ip} | MAC: {d.mac}\n{nombre_detallado}"
+            )
+        self.after(0, _actualizar_ui)
+
+    def _al_ver_dispositivo_conocido(self, mac: str, ip: str):
+        """Callback ejecutado cuando un dispositivo conocido emite tráfico en la red."""
+        def _actualizar_tiempo():
+            for disp in self._dispositivos.values():
+                if disp.mac.upper() == mac.upper():
+                    disp.registrar_actividad()
+                    break
+        self.after(0, _actualizar_tiempo)
+
     def _renombrar_dispositivo_seleccionado(self):
         """Permite al usuario asignar un nombre personalizado/alias al dispositivo."""
         d = self.table.obtener_seleccionado()
@@ -177,7 +279,6 @@ class RedLocalBlockApp(ctk.CTk):
             else:
                 self.logger.info(f"Nombre de {d.ip} restablecido a '{d.nombre_amigable}'.", d.ip)
 
-
     def _iniciar_escaneo(self):
         """Dispara el escaneo concurrente de la subred."""
         self.control_panel.set_estado_escaneo(True)
@@ -188,9 +289,10 @@ class RedLocalBlockApp(ctk.CTk):
             self.after(0, lambda: self.table.agregar_o_actualizar_dispositivo(d))
             self.after(0, self._actualizar_metricas)
 
-        def on_fin(lista):
+        def on_fin(lista: List[DispositivoRed]):
             self.after(0, lambda: self.control_panel.set_estado_escaneo(False))
             self.after(0, self._actualizar_metricas)
+            self.sentinel_service.agregar_macs_conocidas([d.mac for d in lista])
 
         self.scan_service.iniciar_escaneo_asincrono(
             on_dispositivo_encontrado=on_dispositivo,
@@ -251,11 +353,6 @@ class RedLocalBlockApp(ctk.CTk):
         finally:
             self.after(100, self._procesar_cola_logs)
 
-    def _al_cerrar_ventana(self):
-        """Garantiza la reconciliación total de la red antes de cerrar la aplicación."""
-        self.isolation_service.restaurar_todo()
-        self.destroy()
-
     def _abrir_manual_usuario(self, seccion_inicial: int = 0):
         """Abre la ventana modal desplegable con el manual de usuario (Patrón 08-popups)."""
         ManualModal(self, seccion_inicial=seccion_inicial)
@@ -264,4 +361,3 @@ class RedLocalBlockApp(ctk.CTk):
         """Notificación de cambio de tema: refresca componentes dinámicos de la interfaz."""
         self.table.actualizar_dispositivos(list(self._dispositivos.values()))
         self.logger.info(f"Tema de interfaz cambiado a {modo.upper()}.")
-

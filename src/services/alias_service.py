@@ -5,6 +5,7 @@ Almacena y recupera apodos definidos por el usuario en formato JSON local.
 
 import json
 import os
+import sys
 import threading
 from typing import Dict, Optional
 
@@ -12,21 +13,27 @@ from typing import Dict, Optional
 class AliasService:
     """Gestiona el almacenamiento local de nombres personalizados para direcciones MAC."""
 
-    _RUTA_ARCHIVO = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-        "device_aliases.json"
-    )
     _lock = threading.RLock()
     _cache: Optional[Dict[str, str]] = None
+
+    @classmethod
+    def _obtener_ruta_archivo(cls) -> str:
+        """Determina la ruta de persistencia respetando entornos congelados (.exe PyInstaller)."""
+        if getattr(sys, "frozen", False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        return os.path.join(base_dir, "device_aliases.json")
 
     @classmethod
     def _cargar(cls) -> Dict[str, str]:
         with cls._lock:
             if cls._cache is not None:
                 return cls._cache
-            if os.path.exists(cls._RUTA_ARCHIVO):
+            ruta = cls._obtener_ruta_archivo()
+            if os.path.exists(ruta):
                 try:
-                    with open(cls._RUTA_ARCHIVO, "r", encoding="utf-8") as f:
+                    with open(ruta, "r", encoding="utf-8") as f:
                         cls._cache = json.load(f)
                         return cls._cache
                 except Exception:
@@ -40,10 +47,17 @@ class AliasService:
             if cls._cache is None:
                 return
             try:
-                with open(cls._RUTA_ARCHIVO, "w", encoding="utf-8") as f:
+                ruta = cls._obtener_ruta_archivo()
+                with open(ruta, "w", encoding="utf-8") as f:
                     json.dump(cls._cache, f, indent=2, ensure_ascii=False)
             except Exception:
                 pass
+
+    @classmethod
+    def obtener_todos_alias(cls) -> Dict[str, str]:
+        """Retorna una copia de todos los alias almacenados."""
+        with cls._lock:
+            return dict(cls._cargar())
 
     @classmethod
     def obtener_alias(cls, mac: str) -> Optional[str]:

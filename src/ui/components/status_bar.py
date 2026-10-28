@@ -41,7 +41,16 @@ class StatusBar(ctk.CTkFrame):
             font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
             text_color=COLORS["success"],
         )
-        self.lbl_estado.pack(side="left", padx=SPACING["lg"])
+        self.lbl_estado.pack(side="left", padx=SPACING["md"])
+
+        # Indicador de Modo Centinela
+        self.lbl_centinela = ctk.CTkLabel(
+            self,
+            text="🛡️ Centinela: Activo",
+            font=(FONTS["family_sans"], FONTS["sizes"]["xs"], "bold"),
+            text_color=COLORS["success"],
+        )
+        self.lbl_centinela.pack(side="left", padx=SPACING["md"])
 
         # Switch de tema (Modo Oscuro / Claro)
         self.switch_tema = ctk.CTkSwitch(
@@ -81,6 +90,19 @@ class StatusBar(ctk.CTkFrame):
 
     def set_estado(self, texto: str, color: str = COLORS["text"]):
         self.lbl_estado.configure(text=texto, text_color=color)
+
+    def set_estado_centinela(self, activo: bool):
+        """Actualiza la insignia visual del modo centinela en la barra inferior."""
+        if activo:
+            self.lbl_centinela.configure(
+                text="🛡️ Centinela: Activo",
+                text_color=COLORS["success"],
+            )
+        else:
+            self.lbl_centinela.configure(
+                text="🛡️ Centinela: Pausado",
+                text_color=COLORS["warning"],
+            )
 
     def _toggle_tema(self):
         modo = "dark" if self.switch_tema.get() == 1 else "light"

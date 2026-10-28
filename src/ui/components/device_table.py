@@ -104,6 +104,18 @@ class DeviceTable(ctk.CTkFrame):
     def obtener_seleccionado(self) -> Optional[DispositivoRed]:
         return self._dispositivo_seleccionado
 
+    def seleccionar_dispositivo(self, ip_o_mac: str) -> Optional[DispositivoRed]:
+        """Selecciona programáticamente un dispositivo por IP o MAC y notifica a la UI."""
+        target = ip_o_mac.strip().upper()
+        candidato = None
+        for d in self._dispositivos.values():
+            if d.ip == ip_o_mac or d.mac.upper() == target:
+                candidato = d
+                break
+        if candidato:
+            self._seleccionar(candidato)
+        return candidato
+
     def _aplicar_filtro(self):
         termino = self.entry_busqueda.get().strip().lower()
 

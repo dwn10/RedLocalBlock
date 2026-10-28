@@ -125,6 +125,12 @@ class ManualModal(ctk.CTkToplevel):
             "• Controlador Npcap: En Windows, Npcap es indispensable para manipulación de sockets raw en Capa 2.\n"
             "• Uso Ético Obligatorio: Diseñado para fines educativos, pruebas de concepto y administración defensiva de redes de tu propiedad o con autorización expresa."
         ),
+        (
+            "6. Modo Centinela (Sentinel) & Bandeja del Sistema",
+            "• Escucha Pasiva en Capa 2: A diferencia del escaneo activo, el Centinela no emite ningún paquete a la red. Escucha en tiempo real las tramas de difusión ARP (RFC 5227) cuando un nuevo equipo solicita IP o inicia conexión.\n"
+            "• Notificaciones Nativas: Al detectar una MAC desconocida, Windows lanza un aviso emergente Toast con la IP, MAC y fabricante del dispositivo.\n"
+            "• Operación en Segundo Plano: Al pulsar el botón 'X' o 'Minimizar a Bandeja', la app se oculta junto al reloj de Windows manteniendo la vigilancia activa. Haz doble clic en el icono para abrir."
+        ),
     ]
 
     def __init__(self, parent, seccion_inicial: int = 0):

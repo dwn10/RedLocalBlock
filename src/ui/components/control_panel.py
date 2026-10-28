@@ -21,6 +21,7 @@ class ControlPanel(ctk.CTkFrame):
         on_restaurar_todo: Optional[Callable[[], None]] = None,
         on_ayuda: Optional[Callable[[], None]] = None,
         on_renombrar: Optional[Callable[[], None]] = None,
+        on_minimizar_tray: Optional[Callable[[], None]] = None,
         **kwargs,
     ):
         super().__init__(
@@ -38,6 +39,7 @@ class ControlPanel(ctk.CTkFrame):
         self.on_restaurar_todo = on_restaurar_todo
         self.on_ayuda = on_ayuda
         self.on_renombrar = on_renombrar
+        self.on_minimizar_tray = on_minimizar_tray
 
         self._crear_widgets()
 
@@ -177,7 +179,26 @@ class ControlPanel(ctk.CTkFrame):
             state="disabled",
             command=self._accion_renombrar,
         )
-        self.btn_renombrar.pack(fill="x", padx=SPACING["md"], pady=(0, SPACING["md"]))
+        self.btn_renombrar.pack(fill="x", padx=SPACING["md"], pady=(0, SPACING["xs"]))
+
+        # Botón Minimizar a Bandeja (Modo Centinela en segundo plano)
+        if self.on_minimizar_tray:
+            self.btn_tray = ctk.CTkButton(
+                self,
+                text="📥 Minimizar a Bandeja",
+                font=(FONTS["family_sans"], FONTS["sizes"]["xs"]),
+                fg_color="transparent",
+                hover_color=COLORS["surface_hover"],
+                text_color=COLORS["text_muted"],
+                border_width=1,
+                border_color=COLORS["border"],
+                corner_radius=RADII["md"],
+                height=28,
+                command=self.on_minimizar_tray,
+            )
+            self.btn_tray.pack(fill="x", padx=SPACING["md"], pady=(0, SPACING["md"]))
+        else:
+            self.btn_renombrar.pack_configure(pady=(0, SPACING["md"]))
 
 
     def actualizar_seleccion(self, d: Optional[DispositivoRed]):

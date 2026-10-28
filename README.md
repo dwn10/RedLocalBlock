@@ -20,6 +20,10 @@ Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean
   * Barrido asíncrono de la subred local mediante consultas ARP sin congelar la ventana.
   * Resolución local de fabricantes por prefijo MAC (OUI de Apple, Samsung, Intel, TP-Link, Espressif, Nintendo, Sony, ARRIS, etc.).
   * Nombres amigables para dispositivos y soporte para asignar **apodos personalizados persistentes** ("✏️ Renombrar Dispositivo") almacenados localmente en `device_aliases.json`.
+* **🛡️ Modo Centinela (Sentinel) & Bandeja del Sistema (System Tray):**
+  * Escucha pasiva en Capa 2 (0 sobrecarga de red / 0 bytes inyectados) que detecta en tiempo real cuando cualquier dispositivo nuevo o intruso se conecta y emite anuncios ARP (RFC 5227).
+  * Notificaciones emergentes nativas de Windows (Toast / Balloon) con IP, MAC y fabricante detectado.
+  * Operación silenciosa en segundo plano junto al reloj del sistema con menú contextual (`Mostrar`, `Modo Centinela`, `Escanear`, `Restaurar Todo`, `Salir`).
 * **Aislamiento Controlado en Capa 2:**
   * Desasociación selectiva de dispositivos no autorizados mediante forjado ARP (`op=2`).
   * Protección anti-autoaislamiento: el Gateway y la máquina del operador están blindados contra bloqueos accidentales.
@@ -77,7 +81,19 @@ Desarrollada en Python con **CustomTkinter** y **Scapy** bajo arquitectura Clean
 
 ## 💻 Uso
 
-### En Windows:
+### En Windows (Tres variantes disponibles):
+
+#### 🚀 Opción 1: Lanzador 1-Clic (`Iniciar.bat` - Recomendado)
+* **Doble clic** sobre [`Iniciar.bat`](file:///c:/Users/Student/Documents/DEV/RedLocalBlock/Iniciar.bat).
+* **Ventajas:** Inicio instantáneo (<0.5 segundos), utiliza `pythonw.exe` sin molestas ventanas negras de consola y solicita elevación de Administrador (UAC) automáticamente si es necesario.
+
+#### 📦 Opción 2: Compilación a Ejecutable Portable (`.exe`)
+Si deseas generar un archivo independiente para distribuir o ejecutar sin invocar Python directamente:
+1. Haz doble clic en [`compilar_exe.bat`](file:///c:/Users/Student/Documents/DEV/RedLocalBlock/compilar_exe.bat) (o ejecuta `.\compilar_exe.bat` en la terminal).
+2. Se generará el binario en `dist/RedLocalBlock.exe` con todas las dependencias (`customtkinter`, `scapy`, etc.) empaquetadas en un único archivo.
+> *Nota:* Cualquier equipo donde se ejecute el `.exe` debe tener instalado el driver de captura **Npcap**.
+
+#### 🛠️ Opción 3: Modo Terminal / Desarrollo
 Ejecuta la consola como **Administrador** (o permite el diálogo de UAC automático):
 ```bash
 python -m src.main
@@ -114,6 +130,7 @@ RedLocalBlock/
 │   │   └── device.py               # Modelo DispositivoRed y nombres amigables
 │   ├── services/                   # Servicios de red, alias y resolución OUI
 │   │   ├── scan_service.py         # Escaneo concurrente de subred /24 con progreso
+│   │   ├── sentinel_service.py     # Escucha pasiva en Capa 2 y detección de intrusos (RFC 5227)
 │   │   ├── isolation_service.py    # Ciclo de vida de aislamiento y restauración atómica
 │   │   ├── oui_service.py          # Identificador de fabricante a partir de MAC OUI
 │   │   └── alias_service.py        # Persistencia local de nombres y apodos en JSON
@@ -127,17 +144,22 @@ RedLocalBlock/
 │   │       ├── log_console.py      # Consola de auditoría con marcas de tiempo
 │   │       ├── status_bar.py       # Métricas de red y selector dinámico de tema
 │   │       ├── manual_modal.py     # Manual de usuario interactivo desplegable (08-popups)
-│   │       └── footer.py           # Pie de página estándar con créditos ECUADOR-IT (02d-el-footer)
+│   │       ├── footer.py           # Pie de página estándar con créditos ECUADOR-IT (02d-el-footer)
+│   │       └── tray_manager.py     # Integración System Tray y notificaciones nativas Windows
 │   └── utils/                      # Utilidades transversales
 │       └── logger.py               # Logger thread-safe conectado a Queue de la UI
-├── tests/                          # Batería de 15 pruebas unitarias
+├── tests/                          # Batería de 25 pruebas unitarias
 │   ├── test_device_model.py        # Pruebas de máquina de estados y nombres amigables
 │   ├── test_footer.py              # Pruebas del componente AppFooter
 │   ├── test_manual_modal.py        # Pruebas de secciones del manual desplegable
 │   ├── test_network_engine.py      # Pruebas de forjado de tramas ARP
 │   ├── test_oui_service.py         # Pruebas de resolución OUI de fabricantes
-│   └── test_permissions.py         # Pruebas de detección de permisos del sistema
+│   ├── test_permissions.py         # Pruebas de detección de permisos del sistema
+│   ├── test_sentinel_service.py    # Pruebas de escucha pasiva e intercepción de intrusos
+│   └── test_tray_manager.py        # Pruebas del gestor de bandeja y renderizado de icono
 ├── device_aliases.json             # Almacenamiento local persistente de nombres de dispositivos
+├── Iniciar.bat                     # Lanzador 1-clic silencioso con auto-elevación UAC
+├── compilar_exe.bat                # Script de empaquetado standalone con PyInstaller
 ├── Branding.md                     # Guía de diseño visual y accesibilidad WCAG
 ├── Project.md                      # Plano arquitectónico del sistema
 ├── TODO.md                         # Registro y seguimiento de tareas del proyecto

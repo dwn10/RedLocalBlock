@@ -46,22 +46,25 @@ El software incluye descubrimiento concurrente de subred `/24`, aislamiento segu
 - [x] Manual interactivo desplegable con acordeones (Patrón `08-popups` en `ManualModal`).
 - [x] Pie de página centrado con año dinámico y atribución enlazada a ECUADOR-IT (Patrón `02d-el-footer` en `AppFooter`).
 
-### Fase 5: Pruebas y Aseguramiento de Calidad
-- [x] Batería de 15 pruebas unitarias automatizadas (`tests/` con 100% de aprobación).
+### Fase 5: Pruebas, Empaquetado y Notificaciones en Segundo Plano
+- [x] Batería de 25 pruebas unitarias automatizadas (`tests/` con 100% de aprobación).
 - [x] Validación matemática de contraste WCAG con `contrast.py` (0 fallos AA/AAA).
 - [x] Verificación en vivo de ejecución de interfaz con Npcap en Windows.
+- [x] Script lanzador de doble clic para Windows con auto-elevación UAC sin consola negra (`Iniciar.bat`).
+- [x] Script automatizado de compilación a binario portable PyInstaller (`compilar_exe.bat`).
+- [x] **Modo Centinela (SentinelService):** Escucha pasiva en Capa 2 (ARP RFC 5227) con 0 sobrecarga de red y detección en tiempo real de nuevos dispositivos.
+- [x] **Bandeja del Sistema (TrayManager):** Icono interactivo en la bandeja de Windows con menú contextual, minimizado en segundo plano y notificaciones Toast nativas.
 
 ---
 
 ## ⏳ Tareas Pendientes (Backlog de Mejoras Futuras)
 
-- [ ] **Empaquetado Independiente:** Generar binario ejecutable autocontenido para Windows (`.exe`) mediante PyInstaller.
 - [ ] **Exportación de Reportes:** Permitir exportar el inventario de dispositivos y eventos de auditoría a CSV y JSON.
-- [ ] **Notificaciones en Bandeja del Sistema:** Integrar icono en la System Tray con alertas emergentes cuando un nuevo dispositivo desconocido ingrese a la red.
 - [ ] **Rango de Subred Personalizado:** Permitir escanear máscaras variables (ej. `/16`, `/23` o rangos CIDR configurables).
 
 ---
 
 ## 🎯 Siguiente Paso Sugerido (Call to Action)
 
-> **Empaquetado con PyInstaller:** Crear un script de empaquetado para generar `RedLocalBlock.exe` independiente, de modo que cualquier usuario pueda ejecutar la herramienta en Windows sin necesidad de tener Python instalado previamente.
+> **Exportación de Reportes / Auditoría:** Implementar la exportación del inventario de dispositivos y los registros de la consola a archivos CSV y JSON formateados.
+

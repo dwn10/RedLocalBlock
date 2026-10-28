@@ -15,5 +15,7 @@ Pie de página estándar con créditos y año dinámico (02d-el-footer),branding
 Lista blanca de protección anti-bloqueo (Router y Host local),safety,could,no,done,Blindaje de pasarela y equipo propio contra bloqueos accidentales
 Consola de eventos y auditoría en tiempo real con marcas de tiempo,reporting,should,yes,done,Logs estructurados coloreados con botón de limpieza
 Exportación de reporte de auditoría a CSV/JSON,reporting,could,no,todo,Permite guardar inventario de equipos para auditorías
-Empaquetado ejecutable autocontenido (.exe PyInstaller),distribution,could,no,todo,Facilita la distribución sin requerir Python instalado
+Empaquetado ejecutable portable (.exe) y lanzador (.bat),distribution,could,no,done,Facilita la ejecución con 1-clic y distribución portable
+Modo Centinela con escucha pasiva ARP (RFC 5227),monitoring,should,no,done,Detección en tiempo real de nuevos dispositivos con 0 sobrecarga de red
+Bandeja del sistema (System Tray) y notificaciones emergentes,ui,should,no,done,Icono interactivo minimizado en segundo plano y alertas Toast en Windows
 Captura e inspección de tráfico de terceros (MitM Sniffing),network,could,no,skip,Fuera del alcance ético y defensivo de administración local

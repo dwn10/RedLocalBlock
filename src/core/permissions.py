@@ -35,9 +35,13 @@ def solicitar_elevacion_admin() -> bool:
     if es_administrador():
         return True
 
-    # Garantizar que el directorio de trabajo sea la raíz del proyecto
-    script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    params = "-m src.main"
+    # Garantizar que el directorio de trabajo sea la raíz adecuada (script o .exe compilado)
+    if getattr(sys, "frozen", False):
+        script_dir = os.path.dirname(sys.executable)
+        params = ""
+    else:
+        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        params = "-m src.main"
 
     try:
         ret = ctypes.windll.shell32.ShellExecuteW(
@@ -45,6 +49,7 @@ def solicitar_elevacion_admin() -> bool:
             "runas",
             sys.executable,
             params,
+
             script_dir,  # lpDirectory fijado a la raíz del proyecto
             1  # SW_SHOWNORMAL
         )

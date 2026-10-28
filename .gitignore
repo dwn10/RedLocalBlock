@@ -21,7 +21,9 @@ __pycache__/
 htmlcov/
 dist/
 build/
+*.spec
 *.egg-info/
+
 
 # Secretos y variables de entorno (Aislamiento Total)
 .env

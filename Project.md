@@ -227,6 +227,7 @@ graph TD
   scapy==2.5.0
   customtkinter==5.2.2
   pillow==10.4.0
+  pystray==0.19.5
   ```
 
 ---
@@ -253,9 +254,62 @@ graph TD
 
 ---
 
-## 9. 🎖️ Dictamen Arquitectónico (Visto Bueno)
+---
 
-> **CERTIFICACIÓN DE VISTO BUENO ARQUITECTÓNICO:**  
-> El presente plano técnico satisface íntegramente los estándares de seguridad por diseño, resiliencia de red, compatibilidad multiplataforma y cumplimiento normativo.  
-> Los requerimientos levantados en `features.csv` y `REVERSE_ENGINEERING_REPORT.md` han sido completamente asimilados y estructurados.  
-> **Estado:** **APROBADO PARA CONSTRUCCIÓN** (`02b-el-constructor`).
+## 10. 🛡️ Modo Centinela (Sentinel) & Bandeja del Sistema (System Tray)
+
+### A. Escucha Pasiva en Capa 2 vs. Escaneo Activo
+* **Escaneo Activo Tradicional:** Inyecta 254 solicitudes ARP tipo *Who-has* a la subred cada vez que se presiona "Escanear Red" (ideal para instantáneas bajo demanda).
+* **Modo Centinela (SentinelService):** Implementa **Escucha Pasiva (0 bytes transmitidos)**. Cada vez que un dispositivo nuevo o intruso se conecta a la red Wi-Fi o Ethernet, emite forzosamente un paquete *ARP Announcement / Probe* (RFC 5227) para validar su IP o una consulta ARP preguntando por la MAC del Router. La tarjeta de red y el driver Npcap reciben esta trama broadcast (`FF:FF:FF:FF:FF:FF`) en milisegundos sin generar un solo bit de tráfico hacia la red.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Intruso as Dispositivo Nuevo / Intruso
+    participant Red as Red Local (Broadcast)
+    participant Centinela as Sentinel Worker (Scapy)
+    participant App as RedLocalBlock (GUI)
+    participant Tray as Windows System Tray
+    Intruso->>Red: Conexión Wi-Fi / DHCP -> Emite ARP Announcement (Broadcast)
+    Red->>Centinela: Trama ARP interceptada en Capa 2
+    Centinela->>Centinela: ¿MAC conocida en memoria / device_aliases.json?
+    
+    alt Dispositivo Ya Conocido
+        Centinela->>App: Actualiza timestamp 'Último Visto' (Silencioso)
+    else Dispositivo Desconocido / Nuevo
+        Centinela->>Centinela: Resuelve OUI (Fabricante) y Hostname
+        Centinela->>App: Inserta nueva fila en la Tabla en tiempo real
+        Centinela->>Tray: Dispara Notificación Windows Toast / Balloon
+        Tray-->>Intruso: [Alerta Visual en Pantalla]
+    end
+```
+
+### B. Ciclo de Vida y Estados en Segundo Plano (System Tray)
+La integración con el área de notificación (System Tray) permite actuar como un centinela de red persistente:
+
+```mermaid
+stateDiagram-v2
+    [*] --> VentanaAbierta: Iniciar python -m src.main
+    
+    VentanaAbierta --> MinimizadaBandeja: Clic en Minimizar / Botón 'Cerrar'
+    note right of MinimizadaBandeja
+        La ventana se oculta (app.withdraw()).
+        El hilo Centinela sigue escuchando pasivamente en Capa 2.
+    end note
+    MinimizadaBandeja --> VentanaAbierta: Doble clic en Tray o Clic en Notificación
+    
+    state MinimizadaBandeja {
+        [*] --> EscuchaPasiva
+        EscuchaPasiva --> NuevoDispositivoDetectado: Trama ARP de MAC no registrada
+        NuevoDispositivoDetectado --> NotificacionWindows: Emite Toast emergente
+        NotificacionWindows --> EscuchaPasiva
+    }
+    MinimizadaBandeja --> ReconciliacionSalida: Clic derecho -> Salir
+    VentanaAbierta --> ReconciliacionSalida: Cierre definitivo
+    ReconciliacionSalida --> [*]: Reconciliación ARP total garantizada
+```
+
+### C. Módulos Implementados
+1. **`src/services/sentinel_service.py`:** Hilo trabajador daemon con `scapy.sniff(filter="arp", store=0, prn=callback, timeout=1.0)`. Mantiene un set en memoria de MACs autorizadas y despacha eventos cuando detecta una dirección desconocida.
+2. **`src/ui/components/tray_manager.py`:** Gestiona el icono en la bandeja del sistema con vector rasterizado en Pillow, menú contextual y notificaciones nativas de Windows (Toasts/Balloons).
+
